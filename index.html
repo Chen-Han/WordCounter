@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body ng-app="">
+<div ng-controller="wordController">
+    <textarea class="txtinput"
+              placeholder="please paste content here"
+              ng-model="wordinput"
+              ng-change="updateText();updateWordCount();"></textarea>
+    <br/>
+    <span class="briefSummary">There are <em>{{wordCount}}</em>
+        words ({{wordPercent}}%) over <em>{{charLimit}}</em> characters in {{totalWordCount}} words
+    </span><br/>
+    <button ng-click="toggleLimitInput()">Edit Character Length Here</button> <input type="number" ng-model="charLimit" ng-show="limitChanging">
+    <table class="table table-striped" >
+        <thead><tr>
+            <th>KeyWord</th>
+            <th>Times Appeared</th>
+            <th>Percentage</th>
+        </tr></thead>
+        <tbody>
+        <tr id="keyWordDisplay" ng-repeat="keyWord in keyWords" ng-controller="keyWordController" ng-class-even="'evenRows'">
+            <td>
+                <input placeholder="enter keyword here"
+                       type="text"
+                       ng-model="keyWord.content"
+                       ng-change="updateWords()"/>
+            </td>
+            <td>{{keyWord.timesAppeared}}</td>
+            <td>{{keyWord.percentage}}</td>
+        </tr>
+
+        </tbody>
+    </table>
+    <button class="btn" ng-click="keyWords.push({initcontent:'This',percentage:0,timesAppeared:0})">
+        <span class="glyphicon glyphicon-plus-sign "></span>&nbsp;&nbsp;addNew
+    </button>
+
+
+</div>
+<script src="jquery-1.11.1.js"></script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="angularmin.js"></script>
+
+<script>
+    function wordController($scope){
+        $scope.wordinput="";
+        $scope.wordCount=0;
+        $scope.totalWordCount=0;
+        $scope.charLimit=9;
+        $scope.limitChanging=false;
+        $scope.wordPercent=0;
+        $scope.toggleLimitInput=function(){
+            $scope.limitChanging=!$scope.limitChanging;
+        };
+        $scope.keyWords=[{initcontent:"This",percentage:0,timesAppeared:0}];
+        var wordsArray=[];
+        $scope.updateText=function(){
+            wordsArray=$scope.wordinput.split(" ");
+        };
+        $scope.updateWordCount=function(){
+            var count=0;
+            if(wordsArray=="undefined"){
+                $scope.totalWordCount=0;
+                $scope.wordCount=0;
+                $scope.wordPercent=0;
+            }else{
+                for(var i=0;i<wordsArray.length;i++){
+                    if(wordsArray[i].length>=$scope.charLimit){
+                        count++;
+                    }
+                }
+                $scope.totalWordCount=wordsArray.length;
+                $scope.wordCount=count;
+                $scope.wordPercent=Math.round(count/wordsArray.length*100);
+            }
+
+        };
+        /*var updateWordCount=function(newWordInput,oldWordInput){
+            var wordArray=[];
+            wordArray=newWordInput.split(" ");
+            var count=0;
+            for(var i=0;i<wordArray.length;i++){
+                if(wordArray[i].length>=9){
+                    count++;
+                }
+            }
+            $scope.wordCount=count;
+        };*/
+        //$scope.$watch('wordinput',updateWordCount);
+        $scope.getKeyWordStats=function(word){
+            var count=0;
+            var percentage=0;
+            if(wordsArray!=="undefined"){
+                for(var i=0;i<wordsArray.length;i++){
+                    if(wordsArray[i].toLowerCase().indexOf(word.toLowerCase())>-1){
+                        count++;
+                    }
+                }
+                percentage=Math.round(count/wordsArray.length*100);
+            }
+            return {timesAppeared:count,percentage:percentage};
+        };
+
+    }
+    function keyWordController($scope){
+        $scope.$watch('wordinput',function(newvalue,oldvalue){$scope.updateWords();});
+        $scope.updateWords=function(){
+            if($scope.keyWord.content!=="" && $scope.totalWordCount!==0){
+                var keywordStats=$scope.getKeyWordStats($scope.keyWord.content);
+                $scope.keyWord.percentage=keywordStats.percentage;
+                $scope.keyWord.timesAppeared=keywordStats.timesAppeared;
+            }else{
+                $scope.keyWord.percentage=0;
+                $scope.keyWord.timesAppeared=0;
+            }
+        };
+    }
+</script>
+<style>
+.txtinput{
+    position:relative;
+    height:400px;
+    width:600px;
+    left: 5%;
+    top: 10px;
+}
+    .briefSummary{
+        font-size: 2em;
+    }
+    .evenRows{
+        background-color: rgba(164, 179, 188, 0.57);
+    }
+</style>
+</body>
+</html>

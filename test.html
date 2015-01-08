@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html ng-app="testApp">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body ng-controller="testCtrl">
+<div ng-repeat="(fooKey, foo) in fooCollection" ng-controller="fooCtrl">
+    Tell me your name: <input ng-model="foo.bar" ng-change="doSomething()">
+    <br />
+    Hello, my name is {{ foo.bar }}
+</div>
+<button ng-click="fooCollection.push([])">Add a Namer</button>
+
+<input type="text" x-webkit-speech>
+<script src="angularmin.js"></script>
+<script>
+    angular
+            .module('testApp', [])
+            .controller('testCtrl', function ($scope) {
+                $scope.fooCollection = [];
+            })
+            .controller('fooCtrl', function ($scope) {
+                $scope.doSomething = function () {
+                    console.log($scope.foo.bar);
+                };
+            });
+</script>
+</body>
+</html>
